@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake and Ladder</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(10, 50px);
+            grid-template-rows: repeat(10, 50px);
+            gap: 2px;
+            width: 520px;
+            margin: auto;
+            border: 3px solid black;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid black;
+            background-color: lightyellow;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .player {
+            color: red;
+            font-size: 16px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Snake and Ladder Game</h1>
+    <div class="board" id="board"></div>
+    <p>Player Position: <span id="position">1</span></p>
+    <button onclick="rollDice()">Roll Dice</button>
+    <p>Dice Roll: <span id="diceResult">-</span></p>
+    
+    <script>
+        const board = document.getElementById("board");
+        let playerPos = 1;
+        
+        const snakes = { 17: 7, 54: 34, 62: 19, 98: 79 };
+        const ladders = { 3: 22, 6: 25, 20: 38, 57: 76, 72: 91 };
+        
+        function createBoard() {
+            for (let i = 100; i >= 1; i--) {
+                let cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.id = `cell-${i}`;
+                cell.innerText = i;
+                board.appendChild(cell);
+            }
+            updatePlayerPosition();
+        }
+        
+        function rollDice() {
+            let dice = Math.floor(Math.random() * 6) + 1;
+            document.getElementById("diceResult").innerText = dice;
+            movePlayer(dice);
+        }
+        
+        function movePlayer(steps) {
+            let newPos = playerPos + steps;
+            if (newPos > 100) return;
+            playerPos = snakes[newPos] || ladders[newPos] || newPos;
+            updatePlayerPosition();
+        }
+        
+        function updatePlayerPosition() {
+            document.querySelectorAll(".player").forEach(el => el.remove());
+            let playerMarker = document.createElement("span");
+            playerMarker.classList.add("player");
+            playerMarker.innerText = "P";
+            document.getElementById(`cell-${playerPos}`).appendChild(playerMarker);
+            document.getElementById("position").innerText = playerPos;
+        }
+        
+        createBoard();
+    </script>
+</body>
+</html>
