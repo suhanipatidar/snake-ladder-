@@ -17,6 +17,9 @@
             width: 520px;
             margin: auto;
             border: 3px solid black;
+            position: relative;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/1/10/Snakes_and_Ladders_board.jpg');
+            background-size: cover;
         }
         .cell {
             width: 50px;
@@ -25,13 +28,29 @@
             align-items: center;
             justify-content: center;
             border: 1px solid black;
-            background-color: lightyellow;
             font-size: 12px;
             font-weight: bold;
+            position: relative;
         }
         .player {
-            color: red;
             font-size: 16px;
+            position: absolute;
+        }
+        .player1 { color: red; }
+        .player2 { color: blue; }
+        .ladder {
+            position: absolute;
+            width: 10px;
+            height: 80px;
+            background-color: green;
+            transform: rotate(30deg);
+        }
+        .snake {
+            position: absolute;
+            width: 10px;
+            height: 80px;
+            background-color: brown;
+            transform: rotate(-30deg);
         }
         button {
             margin-top: 20px;
@@ -43,13 +62,16 @@
 <body>
     <h1>Snake and Ladder Game</h1>
     <div class="board" id="board"></div>
-    <p>Player Position: <span id="position">1</span></p>
+    <p>Player 1 Position: <span id="position1">1</span></p>
+    <p>Player 2 Position: <span id="position2">1</span></p>
+    <p>Current Turn: <span id="turn">Player 1</span></p>
     <button onclick="rollDice()">Roll Dice</button>
     <p>Dice Roll: <span id="diceResult">-</span></p>
     
     <script>
         const board = document.getElementById("board");
-        let playerPos = 1;
+        let playerPos = { 1: 1, 2: 1 };
+        let currentPlayer = 1;
         
         const snakes = { 17: 7, 54: 34, 62: 19, 98: 79 };
         const ladders = { 3: 22, 6: 25, 20: 38, 57: 76, 72: 91 };
@@ -62,7 +84,21 @@
                 cell.innerText = i;
                 board.appendChild(cell);
             }
+            drawLaddersAndSnakes();
             updatePlayerPosition();
+        }
+        
+        function drawLaddersAndSnakes() {
+            for (let start in ladders) {
+                let ladder = document.createElement("div");
+                ladder.classList.add("ladder");
+                document.getElementById(`cell-${start}`).appendChild(ladder);
+            }
+            for (let start in snakes) {
+                let snake = document.createElement("div");
+                snake.classList.add("snake");
+                document.getElementById(`cell-${start}`).appendChild(snake);
+            }
         }
         
         function rollDice() {
@@ -72,19 +108,24 @@
         }
         
         function movePlayer(steps) {
-            let newPos = playerPos + steps;
+            let newPos = playerPos[currentPlayer] + steps;
             if (newPos > 100) return;
-            playerPos = snakes[newPos] || ladders[newPos] || newPos;
+            playerPos[currentPlayer] = snakes[newPos] || ladders[newPos] || newPos;
             updatePlayerPosition();
+            
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            document.getElementById("turn").innerText = `Player ${currentPlayer}`;
         }
         
         function updatePlayerPosition() {
             document.querySelectorAll(".player").forEach(el => el.remove());
-            let playerMarker = document.createElement("span");
-            playerMarker.classList.add("player");
-            playerMarker.innerText = "P";
-            document.getElementById(`cell-${playerPos}`).appendChild(playerMarker);
-            document.getElementById("position").innerText = playerPos;
+            for (let p = 1; p <= 2; p++) {
+                let playerMarker = document.createElement("span");
+                playerMarker.classList.add("player", `player${p}`);
+                playerMarker.innerText = `P${p}`;
+                document.getElementById(`cell-${playerPos[p]}`).appendChild(playerMarker);
+                document.getElementById(`position${p}`).innerText = playerPos[p];
+            }
         }
         
         createBoard();
